@@ -58,22 +58,13 @@
             return -1 ;
         }
 
-        // hàm thêm vật phẩm vào xe hàng, nếu vật phẩm giống thì thêm số lượng
+        // hàm thêm vật phẩm vào xe hàng
         public function addProduct(string $name, float $price, int $quantity){
             $check = $this->isValidation($name, $price, $quantity);
             if ($check != -1){
-                for ($i = 0; $i < count($this->products); $i ++){
-                    if ($this->products[$i]->name == $name && $this->products[$i]->price == $price && $this->products[$i]->quantity == $quantity){
-                        $this->products[$i]->quantity += $quantity;
-                    }
-                    else{
-                        $this->products[] = new Item(count($this->products)+1, $name, $price, $quantity);
-                        break;
-                    }
-                    return;
+                $this->products[] = new Item(count($this->products)+1, $name, $price, $quantity); 
+                return;
                 }
-            }
-            return;
         }
 
         // hàm xóa vật phẩm theo id
