@@ -1,4 +1,5 @@
 <?php
+    // tạo đối tượng sản phẩm:
     class Item{
         public int $id;
         public string $name;
@@ -11,6 +12,8 @@
             $this->quantity = $quantity;
         }
     }
+
+    // tạo đối tượng xe hàng
     class ShoppingCart{
         public array $products = [];
         function __construct(array $products = []){
@@ -20,6 +23,8 @@
         {
             return $this->products;  
         }
+
+        // hàm trả về id vật phẩm
         public function getId(int $id){
             if ($id < 0 || count($this->products) == 0) return -1;
             else {
@@ -31,12 +36,16 @@
             }
             return -1;  
         }
+
+        // hàm kiểm tra thuộc tính hợp lệ
         public function isValidation(string $name, float $price, int $quantity){
             if (empty(trim($name)) || $price <= 0 || $quantity <= 0) {
                 return -1;
             }
             return;
         }
+
+        // hàm tìm vật phẩm theo id
         public function getProductById(int $id){
             $check = $this->getId($id);
             if ($check != -1){
@@ -48,6 +57,8 @@
             }
             return -1 ;
         }
+
+        // hàm thêm vật phẩm vào xe hàng, nếu vật phẩm giống thì thêm số lượng
         public function addProduct(string $name, float $price, int $quantity){
             $check = $this->isValidation($name, $price, $quantity);
             if ($check != -1){
@@ -64,6 +75,8 @@
             }
             return;
         }
+
+        // hàm xóa vật phẩm theo id
         public function deleteProduct(int $id){
             $check = $this->getId($id);
             if ($check != -1){
@@ -76,6 +89,8 @@
             }
             return;
         }
+
+        // hàm cập nhật thuộc tính vât phẩm
         public function updateProduct(int $id, string $name, float $price, int $quantity){
             $idCheck = $this->getId($id);
             $validCheck = $this->isValidation($name, $price, $quantity);
@@ -92,6 +107,8 @@
             }
             return;
         }
+
+        // hàm trả về thành tiền
         public function totalPriceProduct():float {
             $total = 0;
             for ($i = 0; $i < count($this->products); $i++ ){
