@@ -2,25 +2,25 @@
 class user {
     public int $id;
     public string $username;
-    public string $password;
+    public string $passwd;
     private $conn;
 
-    public function __construct($conn, int $id = 0, string $username = '', string $password = '') {
+    public function __construct($conn, int $id = 0, string $username = '', string $passwd = '') {
         $this->conn = $conn;
         $this->id = $id;
         $this->username = $username;
-        $this->password = $password;
+        $this->passwd = $passwd;
     }
 
-    public function checkinfo(string $username, string $password) {
-        if (trim($username) == '' || trim($password) == '') {
+    public function checkinfo(string $username, string $passwd) {
+        if (trim($username) == '' || trim($passwd) == '') {
             return -1;
         }
         return 0;
     }
 
-    public function register(string $username, string $password) {
-        $c = $this->checkinfo($username, $password);
+    public function register(string $username, string $passwd) {
+        $c = $this->checkinfo($username, $passwd);
 
         // Kiểm tra xem username đã tồn tại chưa
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = :username");
@@ -30,13 +30,13 @@ class user {
         }
 
         if ($c != -1) {
-            $hashedpassword = password_hash($password, PASSWORD_DEFAULT);
+            $hashedpassword = password_hash($passwd, PASSWORD_DEFAULT);
             
             // Sửa cột password thành pass_w ở đây
-            $stmt = $this->conn->prepare("INSERT INTO users(username, pass_w) VALUES (:username, :password)");
+            $stmt = $this->conn->prepare("INSERT INTO users(username, password) VALUES (:username, :passwd)");
             $result = $stmt->execute([
                 'username' => $username, 
-                'password' => $hashedpassword
+                'passwd' => $hashedpassword
             ]);
             
             return true; 
@@ -45,16 +45,15 @@ class user {
         }
     }
 
-    public function login(string $username, string $password) {
-        $c = $this->checkinfo($username, $password);
+    public function login(string $username, string $passwd) {
+        $c = $this->checkinfo($username, $passwd);
 
         if ($c != -1) {
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE username = :username");
             $stmt->execute(['username' => $username]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Sử dụng $user['pass_w'] vì tên cột trong DB của bạn là pass_w
-            if ($user && password_verify($password, $user['pass_w'])) {
+            if ($user && password_verify($passwd, $user['password'])) {
                 $this->id = $user['id'];
                 $this->username = $user['username'];
                 return $user; 
