@@ -14,10 +14,10 @@ if (isset($_GET['registered']) && $_GET['registered'] === 'success') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $passwd = $_POST['passwd'] ?? '';
 
     $userObj = new User($conn);
-    $user = $userObj->login($username, $password);
+    $user = $userObj->login($username, $passwd);
 
     if ($user !== false) {
         // Đăng nhập thành công, lưu thông tin vào Session
@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <br>
         <div>
-            <label for="password">Mật khẩu:</label><br>
-            <input type="password" id="password" name="password">
+            <label for="passwd">Mật khẩu:</label><br>
+            <input type="passwd" id="passwd" name="passwd">
         </div>
         <br>
         <div>
