@@ -2,7 +2,7 @@
 session_start();
 
 // Kiểm tra xem người dùng đã đăng nhập chưa, nếu chưa thì chuyển hướng về trang login.php
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['username'])) { // Nên kiểm tra theo username hoặc user_id tùy theo cách bạn lưu lúc login[cite: 6]
     header("Location: login.php");
     exit();
 }
@@ -10,18 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 require_once 'common/dbConnect.php';
 require_once 'model/product.php';
 
-// 1. Lấy dữ liệu từ DB truyền vào class ShoppingCart
-$stmt = $conn->prepare("SELECT * FROM products ORDER BY id ASC");
-$stmt->execute();
-$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$itemsList = [];
-foreach ($rows as $row) {
-    $itemsList[] = new Item((int)$row['id'], $row['name'], (float)$row['price'], (int)$row['quantity']);
-}
-
-$cart = new ShoppingCart($itemsList);
-$products = $cart->getAllProducts();
+// Gọi hàm lấy danh sách sản phẩm từ model/product.php (Đúng chuẩn yêu cầu đề bài)
+$products = getAllProducts();
 
 include 'view/header.php';
 ?>
@@ -51,15 +41,19 @@ include 'view/header.php';
     </thead>
     <tbody>
         <?php if (!empty($products)): ?>
-            <?php foreach ($products as $item): ?>
+            <?php 
+            $totalAmount = 0; // Biến tính tổng tiền trực tiếp
+            foreach ($products as $item): 
+                $totalAmount += $item['price'] * $item['quantity'];
+            ?>
                 <tr>
-                    <td><center><?= $item->id ?></center></td>
-                    <td><center><?= htmlspecialchars($item->name) ?></center></td>
-                    <td><center><?= number_format($item->price, 0, ',', '.') ?></center></td>
-                    <td><center><?= $item->quantity ?></center></td>
+                    <td><center><?= $item['id'] ?></center></td>
+                    <td><center><?= htmlspecialchars($item['name']) ?></center></td>
+                    <td><center><?= number_format($item['price'], 0, ',', '.') ?></center></td>
+                    <td><center><?= $item['quantity'] ?></center></td>
                     <td>
-                        <a href="product_edit.php?id=<?= $item->id ?>">Sửa</a> | 
-                        <a href="product_delete.php?id=<?= $item->id ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
+                        <a href="product_edit.php?id=<?= $item['id'] ?>">Sửa</a> | 
+                        <a href="product_delete.php?id=<?= $item['id'] ?>" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">Xóa</a>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -71,7 +65,7 @@ include 'view/header.php';
     </tbody>
 </table>
 
-<!-- Gọi phương thức tính tổng tiền từ class $cart -->
-<p style="margin-top: 15px;"><strong>Thành tiền tổng cộng: </strong><?= number_format($cart->totalPriceProduct(), 0, ',', '.') ?> VNĐ</p>
+<!-- Hiển thị tổng thành tiền -->
+<p style="margin-top: 15px;"><strong>Thành tiền tổng cộng: </strong><?= number_format($totalAmount ?? 0, 0, ',', '.') ?> VNĐ</p>
 
 <?php include 'view/footer.php'; ?>
