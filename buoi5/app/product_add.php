@@ -3,7 +3,7 @@ session_start();
 require_once 'common/dbConnect.php';
 require_once 'model/product.php';
 
-// 1. Kiểm tra đăng nhập (Khắc phục lỗi không kiểm tra đăng nhập)
+// Kiểm soát truy cập: Bắt buộc đăng nhập
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
@@ -21,49 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $quantity = (int)($_POST['quantity'] ?? 0);
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    $cart = new ShoppingCart();
-    
-    // Kiểm tra tính hợp lệ của dữ liệu sản phẩm
-    if (!$cart->isValidation($name, $price, $quantity)) {
+    // Kiểm tra tính hợp lệ dữ liệu
+    if (!isValidation($name, $price, $quantity)) {
         $errors[] = "Dữ liệu không hợp lệ (Tên không được rỗng, Giá > 0, Số lượng >= 0).";
     }
 
-    // 2. Xác nhận mật khẩu của user đang đăng nhập
+    // Xác nhận mật khẩu của user đang đăng nhập
     if (empty($confirm_password)) {
         $errors[] = "Vui lòng nhập mật khẩu xác nhận.";
     } else {
-        // Truy vấn lấy thông tin user từ database (giả sử bảng chứa user tên là 'users', cột là 'username' và 'password')
         $stmtUser = $conn->prepare("SELECT * FROM users WHERE username = :username");
         $stmtUser->execute(['username' => $_SESSION['username']]);
         $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user) {
-            $errors[] = "Không tìm thấy thông tin tài khoản đăng nhập.";
-        } else {
-            // Kiểm tra mật khẩu (nếu bạn mã hóa password bằng password_hash, dùng password_verify. 
-            // Nếu lưu dạng chuỗi thông thường thì đổi thành: $user['password'] !== $confirm_password)
-            $isPasswordCorrect = false;
-            if (password_get_info($user['password'])['algo'] != 0) {
-                $isPasswordCorrect = password_verify($confirm_password, $user['password']);
-            } else {
-                $isPasswordCorrect = ($user['password'] === $confirm_password);
-            }
-
-            if (!$isPasswordCorrect) {
-                $errors[] = "Mật khẩu xác nhận không chính xác.";
-            }
+        if (!$user || !password_verify($confirm_password, $user['password'])) {
+            $errors[] = "Mật khẩu xác nhận không chính xác.";
         }
     }
 
-    // Nếu không có lỗi, tiến hành thêm sản phẩm vào Database
+    // Nếu không có lỗi, gọi hàm addProduct từ model/product.php
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO products (name, price, quantity) VALUES (:name, :price, :quantity)");
-        $stmt->execute([
-            'name' => $name,
-            'price' => $price,
-            'quantity' => $quantity
-        ]);
-
+        addProduct($name, $price, $quantity);
         header("Location: product_list.php");
         exit();
     }
@@ -107,7 +85,7 @@ include 'view/header.php';
         <input type="number" name="quantity" value="<?= htmlspecialchars((string)$quantity) ?>">
     </div><br>
     <div>
-        <label>Xác nhận mật khẩu (của tài khoản hiện tại):</label><br>
+        <label>Xác nhận mật khẩu tài khoản:</label><br>
         <input type="password" name="confirm_password" required>
     </div><br>
     <button type="submit">Thêm mới</button>
