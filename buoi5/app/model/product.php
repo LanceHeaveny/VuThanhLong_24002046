@@ -1,11 +1,12 @@
 <?php
-    // tạo đối tượng sản phẩm:
-    class Item{
+    // Tạo đối tượng sản phẩm
+    class Item {
         public int $id;
         public string $name;
         public float $price;
         public int $quantity;
-        function __construct(int $id, string $name, float $price, int $quantity){
+
+        public function __construct(int $id, string $name, float $price, int $quantity){
             $this->id = $id;
             $this->name = $name;
             $this->price = $price;
@@ -13,99 +14,98 @@
         }
     }
 
-    // tạo đối tượng xe hàng
-    class ShoppingCart{
+    // Tạo đối tượng giỏ hàng / quản lý sản phẩm
+    class ShoppingCart {
         public array $products = [];
-        function __construct(array $products = []){
+
+        public function __construct(array $products = []){
             $this->products = $products;
         }
-        public function getAllProducts(): array 
-        {
+
+        public function getAllProducts(): array {
             return $this->products;  
         }
 
-        // hàm trả về id vật phẩm
-        public function getId(int $id){
-            if ($id < 0 || count($this->products) == 0) return -1;
-            else {
-                for ($i =0; $i < count($this->products); $i++){
-                    if ($this->products[$i]->id == $id){
-                    return $i;  
-                    }
+        // Đổi tên thành getIndexById để phản ánh đúng việc trả về vị trí (index) trong mảng
+        public function getIndexById(int $id): int {
+            foreach ($this->products as $index => $product) {
+                if ($product->id == $id) {
+                    return $index;  
                 }
             }
             return -1;  
         }
 
-        // hàm kiểm tra thuộc tính hợp lệ
-        public function isValidation(string $name, float $price, int $quantity){
-            if (empty(trim($name)) || $price <= 0 || $quantity <= 0) {
-                return -1;
+        // Hàm kiểm tra thuộc tính hợp lệ (Trả về true nếu hợp lệ, false nếu sai)
+        public function isValidation(string $name, float $price, int $quantity): bool {
+            if (empty(trim($name)) || $price <= 0 || $quantity < 0) {
+                return false;
             }
-            return;
+            return true;
         }
 
-        // hàm tìm vật phẩm theo id
-        public function getProductById(int $id){
-            $check = $this->getId($id);
-            if ($check != -1){
-            for ($i =0; $i < count($this->products); $i++){
-                if ($this->products[$i]->id == $check){
-                    return $this->products[$i];
-                    }
-                }
+        // Hàm tìm vật phẩm theo id
+        public function getProductById(int $id) {
+            $index = $this->getIndexById($id);
+            if ($index != -1){
+                return $this->products[$index];
             }
-            return -1 ;
+            return null; 
         }
 
-        // hàm thêm vật phẩm vào xe hàng
-        public function addProduct(string $name, float $price, int $quantity){
-            $check = $this->isValidation($name, $price, $quantity);
-            if ($check != -1){
-                $this->products[] = new Item(count($this->products)+1, $name, $price, $quantity); 
-                return;
-                }
-        }
-
-        // hàm xóa vật phẩm theo id
-        public function deleteProduct(int $id){
-            $check = $this->getId($id);
-            if ($check != -1){
-                for ($i = 0; $i < count($this->products); $i++){
-                    if ($this->products[$i]->id == $check){
-                        array_splice($this->products, $check, 1);
-                    }
-                    return;
-                }
+        // Hàm thêm vật phẩm vào xe hàng
+        public function addProduct(string $name, float $price, int $quantity): bool {
+            if (!$this->isValidation($name, $price, $quantity)) {
+                return false;
             }
-            return;
-        }
 
-        // hàm cập nhật thuộc tính vât phẩm
-        public function updateProduct(int $id, string $name, float $price, int $quantity){
-            $idCheck = $this->getId($id);
-            $validCheck = $this->isValidation($name, $price, $quantity);
-            if ($idCheck != -1){
-                if ($validCheck != -1){
-                    for ($i =0; $i < count($this->products); $i++){
-                        if ($this->products[$i]->id == $idCheck){
-                            $this->products[$i]->name = $name;
-                            $this->products[$i]->price = $price;
-                            $this->products[$i]->quantity = $quantity;
-                        }
-                    }
-                }
+            // Tự động tạo ID tăng dần an toàn (tránh trùng lặp khi xóa sản phẩm)
+            $newId = 1;
+            if (!empty($this->products)) {
+                $maxId = max(array_map(fn($p) => $p->id, $this->products));
+                $newId = $maxId + 1;
             }
-            return;
+
+            $this->products[] = new Item($newId, $name, $price, $quantity);
+            return true;
         }
 
-        // hàm trả về thành tiền
-        public function totalPriceProduct():float {
+        // Hàm xóa vật phẩm theo id
+        public function deleteProduct(int $id): bool {
+            $index = $this->getIndexById($id);
+            if ($index != -1) {
+                array_splice($this->products, $index, 1);
+                return true;
+            }
+            return false;
+        }
+
+        // Hàm cập nhật thuộc tính vật phẩm
+        public function updateProduct(int $id, string $name, float $price, int $quantity): bool {
+            $index = $this->getIndexById($id);
+            
+            if ($index == -1) {
+                return false; // Không tìm thấy sản phẩm
+            }
+
+            if (!$this->isValidation($name, $price, $quantity)) {
+                return false; // Dữ liệu không hợp lệ
+            }
+
+            // Tiến hành cập nhật
+            $this->products[$index]->name = $name;
+            $this->products[$index]->price = $price;
+            $this->products[$index]->quantity = $quantity;
+            return true;
+        }
+
+        // Hàm trả về thành tiền tổng cộng
+        public function totalPriceProduct(): float {
             $total = 0;
-            for ($i = 0; $i < count($this->products); $i++ ){
-                $total += $this->products[$i]->price * $this->products[$i]->quantity;
+            foreach ($this->products as $product) {
+                $total += $product->price * $product->quantity;
             }
             return $total;
-        }    
+        }     
     }
 ?>
