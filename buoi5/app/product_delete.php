@@ -3,23 +3,19 @@ session_start();
 require_once 'common/dbConnect.php';
 require_once 'model/product.php';
 
-// 1. Kiểm tra xem người dùng đã đăng nhập hay chưa
+// Kiểm soát truy cập
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
 
 $errors = [];
-
-// Lấy id từ URL
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Tìm sản phẩm trong Database
-$stmt = $conn->prepare("SELECT * FROM products WHERE id = :id");
-$stmt->execute(['id' => $id]);
-$product = $stmt->fetch(PDO::FETCH_ASSOC);
+// Sử dụng hàm getProductById từ model
+$product = getProductById($id);
 
-// Nếu sản phẩm không tồn tại, hiển thị thông báo
+// Nếu sản phẩm không tồn tại
 if (!$product) {
     include 'view/header.php';
     echo "<h3>Sản phẩm không tồn tại!</h3>";
@@ -28,40 +24,24 @@ if (!$product) {
     exit();
 }
 
-// Khi người dùng bấm nút xác nhận xóa (Gửi POST kèm mật khẩu)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'] ?? '';
 
     if (empty($confirm_password)) {
-        $errors[] = "Vui lòng nhập mật khẩu xác nhận để xóa sản phẩm.";
+        $errors[] = "Vui lòng nhập mật khẩu xác nhận để xóa.";
     } else {
-        // Lấy thông tin user đang đăng nhập để kiểm tra mật khẩu
         $stmtUser = $conn->prepare("SELECT * FROM users WHERE username = :username");
         $stmtUser->execute(['username' => $_SESSION['username']]);
         $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user) {
-            $errors[] = "Không tìm thấy thông tin tài khoản.";
-        } else {
-            // Kiểm tra mật khẩu (hỗ trợ cả mật khẩu băm password_hash hoặc chuỗi thông thường)
-            $isPasswordCorrect = false;
-            if (password_get_info($user['password'])['algo'] != 0) {
-                $isPasswordCorrect = password_verify($confirm_password, $user['password']);
-            } else {
-                $isPasswordCorrect = ($user['password'] === $confirm_password);
-            }
-
-            if (!$isPasswordCorrect) {
-                $errors[] = "Mật khẩu xác nhận không chính xác.";
-            }
+        if (!$user || !password_verify($confirm_password, $user['password'])) {
+            $errors[] = "Mật khẩu xác nhận không chính xác.";
         }
     }
 
-    // Nếu mật khẩu đúng và không có lỗi, tiến hành xóa
+    // Nếu hợp lệ, gọi hàm deleteProduct từ model
     if (empty($errors)) {
-        $stmtDelete = $conn->prepare("DELETE FROM products WHERE id = :id");
-        $stmtDelete->execute(['id' => $id]);
-
+        deleteProduct($id);
         header("Location: product_list.php");
         exit();
     }
@@ -94,11 +74,11 @@ include 'view/header.php';
 
 <form action="product_delete.php?id=<?= $id ?>" method="POST">
     <div style="margin-bottom: 15px;">
-        <label>Nhập mật khẩu tài khoản (<strong><?= htmlspecialchars($_SESSION['username']) ?></strong>) để xác nhận xóa:</label><br>
-        <input type="password" name="confirm_password" required style="padding: 5px; width: 250px;">
+        <label>Nhập mật khẩu xác nhận:</label><br>
+        <input type="password" name="confirm_password" required>
     </div>
-    <button type="submit" style="background: #dc3545; color: white; padding: 6px 12px; border: none; border-radius: 3px; cursor: pointer;">Đồng ý xóa</button>
-    <a href="product_list.php" style="margin-left: 10px;">Hủy</a>
+    <button type="submit" style="background: #dc3545; color: white;">Đồng ý xóa</button>
+    <a href="product_list.php">Hủy</a>
 </form>
 
 <?php include 'view/footer.php'; ?>
