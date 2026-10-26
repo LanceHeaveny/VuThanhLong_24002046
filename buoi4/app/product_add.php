@@ -1,33 +1,47 @@
 <?php
+session_start();
 require_once 'common/dbConnect.php';
 require_once 'model/product.php';
+
+// Kiểm soát truy cập: Bắt buộc đăng nhập
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 
 $errors = [];
 $name = '';
 $price = '';
 $quantity = '';
+$confirm_password = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $price = (float)($_POST['price'] ?? 0);
     $quantity = (int)($_POST['quantity'] ?? 0);
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
-    $cart = new ShoppingCart();
-    
-    // Sử dụng hàm isValidation() của ShoppingCart
-    if ($cart->isValidation($name, $price, $quantity) === -1) {
-        $errors[] = "Dữ liệu không hợp lệ (Tên không được rỗng, Giá > 0, Số lượng > 0).";
+    // Kiểm tra tính hợp lệ dữ liệu
+    if (!isValidation($name, $price, $quantity)) {
+        $errors[] = "Dữ liệu không hợp lệ (Tên không được rỗng, Giá > 0, Số lượng >= 0).";
     }
 
-    if (empty($errors)) {
-        // Lưu sản phẩm vào Database MySQL
-        $stmt = $conn->prepare("INSERT INTO products (name, price, quantity) VALUES (:name, :price, :quantity)");
-        $stmt->execute([
-            'name' => $name,
-            'price' => $price,
-            'quantity' => $quantity
-        ]);
+    // Xác nhận mật khẩu của user đang đăng nhập
+    if (empty($confirm_password)) {
+        $errors[] = "Vui lòng nhập mật khẩu xác nhận.";
+    } else {
+        $stmtUser = $conn->prepare("SELECT * FROM users WHERE username = :username");
+        $stmtUser->execute(['username' => $_SESSION['username']]);
+        $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
+        if (!$user || !password_verify($confirm_password, $user['password'])) {
+            $errors[] = "Mật khẩu xác nhận không chính xác.";
+        }
+    }
+
+    // Nếu không có lỗi, gọi hàm addProduct từ model/product.php
+    if (empty($errors)) {
+        addProduct($name, $price, $quantity);
         header("Location: product_list.php");
         exit();
     }
@@ -35,6 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include 'view/header.php';
 ?>
+
+<div style="display: flex; justify-content: space-between; align-items: center; background: #f4f4f4; padding: 10px; margin-bottom: 20px;">
+    <div>
+        <span>Xin chào, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>!</span>
+    </div>
+    <div>
+        <a href="logout.php" style="background: red; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px;" onclick="return confirm('Bạn có chắc chắn muốn đăng xuất?');">Đăng xuất</a>
+    </div>
+</div>
 
 <h3>Thêm sản phẩm mới</h3>
 
@@ -60,6 +83,10 @@ include 'view/header.php';
     <div>
         <label>Số lượng:</label><br>
         <input type="number" name="quantity" value="<?= htmlspecialchars((string)$quantity) ?>">
+    </div><br>
+    <div>
+        <label>Xác nhận mật khẩu tài khoản:</label><br>
+        <input type="password" name="confirm_password" required>
     </div><br>
     <button type="submit">Thêm mới</button>
     <a href="product_list.php">Hủy</a>
