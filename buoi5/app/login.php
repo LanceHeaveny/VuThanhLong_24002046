@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <br>
         <div>
             <label for="passwd">Mật khẩu:</label><br>
-            <input type="passwd" id="passwd" name="passwd">
+            <input type="password" id="passwd" name="passwd">
         </div>
         <br>
         <div>
