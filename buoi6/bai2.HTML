@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt vé phim</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #fff7ed, #f0fdf4);
+        color: #1f2937;
+      }
+      .container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 16px;
+      }
+      .card {
+        width: min(760px, 100%);
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(17, 24, 39, 0.12);
+        padding: 28px;
+        border: 1px solid #e5e7eb;
+      }
+      h2 {
+        margin-top: 0;
+        text-align: center;
+        color: #111827;
+      }
+      .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .field {
+        flex: 1;
+        min-width: 180px;
+        margin-bottom: 18px;
+      }
+      label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      input, select, button {
+        font: inherit;
+      }
+      input[type="text"],
+      select,
+      input[type="number"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #dbe3ef;
+        outline: none;
+      }
+      input[type="radio"], input[type="checkbox"] {
+        accent-color: #2563eb;
+      }
+      .radio-group {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 10px 2px;
+      }
+      .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .combo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 8px 0 18px;
+      }
+      .qty-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .qty-box button {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 10px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .qty-box input {
+        width: 72px;
+        text-align: center;
+      }
+      .summary {
+        margin-top: 12px;
+        padding: 18px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+      .summary p {
+        margin: 8px 0;
+      }
+      .total {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .primary, .secondary {
+        border: none;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .primary {
+        background: #2563eb;
+        color: white;
+      }
+      .secondary {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      .primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+      }
+      .confirm {
+        margin-top: 22px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .confirm h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+      }
+      .confirm p {
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <div class="card">
+        <h2>Đặt vé xem phim</h2>
+
+        <form @submit.prevent="datVe">
+          <div class="field">
+            <label for="hoTen">Họ tên khách hàng</label>
+            <input id="hoTen" v-model.trim="hoTen" type="text" placeholder="Nhập họ tên" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="suatChieu">Suất chiếu</label>
+              <select id="suatChieu" v-model="suatChieu">
+                <option value="">-- Chọn suất chiếu --</option>
+                <option value="10:00">10:00</option>
+                <option value="13:30">13:30</option>
+                <option value="18:00">18:00</option>
+                <option value="21:00">21:00</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Loại vé</label>
+              <div class="radio-group">
+                <label class="radio-item">
+                  <input type="radio" value="thuong" v-model="loaiVe" />
+                  <span>Vé thường (70.000đ)</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" value="vip" v-model="loaiVe" />
+                  <span>Vé VIP (100.000đ)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Số lượng vé</label>
+              <div class="qty-box">
+                <button type="button" @click="giamSoLuong">−</button>
+                <input v-model.number="soLuong" type="number" min="1" max="10" />
+                <button type="button" @click="tangSoLuong">+</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Combo bắp nước</label>
+              <label class="combo">
+                <input type="checkbox" v-model="combo" />
+                <span>Thêm combo (45.000đ / đơn)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="summary">
+            <p>Giá vé: <strong>{{ giaVe.toLocaleString() }}đ</strong></p>
+            <p>Số lượng: <strong>{{ soLuong }}</strong></p>
+            <p>Combo: <strong>{{ combo ? 'Có' : 'Không' }}</strong></p>
+            <p class="total">Tổng tiền: {{ tongTien.toLocaleString() }}đ</p>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="primary" :disabled="!isValidForm">Đặt vé</button>
+            <button type="button" class="secondary" @click="resetForm">Đặt lại form</button>
+          </div>
+        </form>
+
+        <div v-if="confirmInfo" class="confirm">
+          <h3>Xác nhận đặt vé</h3>
+          <p>Khách hàng: <strong>{{ confirmInfo.hoTen }}</strong></p>
+          <p>Suất chiếu: <strong>{{ confirmInfo.suatChieu }}</strong></p>
+          <p>Loại vé: <strong>{{ confirmInfo.loaiVeText }}</strong></p>
+          <p>Số lượng: <strong>{{ confirmInfo.soLuong }}</strong></p>
+          <p>Combo: <strong>{{ confirmInfo.combo ? 'Có' : 'Không' }}</strong></p>
+          <p>Tổng tiền: <strong>{{ confirmInfo.tongTien.toLocaleString() }}đ</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            hoTen: '',
+            suatChieu: '',
+            loaiVe: 'thuong',
+            soLuong: 2,
+            combo: false,
+            confirmInfo: null,
+          };
+        },
+        computed: {
+          giaVe() {
+            return this.loaiVe === 'vip' ? 100000 : 70000;
+          },
+          tongTien() {
+            const tienVe = this.giaVe * this.soLuong;
+            const tienCombo = this.combo ? 45000 : 0;
+            return tienVe + tienCombo;
+          },
+          isValidForm() {
+            return this.hoTen.trim() !== '' && this.soLuong >= 1 && this.soLuong <= 10;
+          },
+        },
+        methods: {
+          tangSoLuong() {
+            if (this.soLuong < 10) this.soLuong++;
+          },
+          giamSoLuong() {
+            if (this.soLuong > 1) this.soLuong--;
+          },
+          resetForm() {
+            this.hoTen = '';
+            this.suatChieu = '';
+            this.loaiVe = 'thuong';
+            this.soLuong = 1;
+            this.combo = false;
+            this.confirmInfo = null;
+          },
+          datVe() {
+            if (!this.isValidForm) return;
+
+            this.confirmInfo = {
+              hoTen: this.hoTen.trim(),
+              suatChieu: this.suatChieu,
+              loaiVeText: this.loaiVe === 'vip' ? 'Vé VIP' : 'Vé thường',
+              soLuong: this.soLuong,
+              combo: this.combo,
+              tongTien: this.tongTien,
+            };
+          },
+        },
+      });
+
+      app.mount('#app');
+    </script>
+  </body>
+</html>

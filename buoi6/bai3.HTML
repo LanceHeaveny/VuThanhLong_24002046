@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý công việc</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #f5f3ff, #ecfeff);
+        color: #1f2937;
+      }
+      .container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 16px;
+      }
+      .todo-box {
+        width: min(820px, 100%);
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 18px 45px rgba(17, 24, 39, 0.12);
+        padding: 28px;
+        border: 1px solid #e5e7eb;
+      }
+      h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      .input-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .input-row input {
+        flex: 1;
+        padding: 12px 14px;
+        border: 1px solid #dbe3ef;
+        border-radius: 10px;
+        font-size: 1rem;
+      }
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: #2563eb;
+        color: #fff;
+      }
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+      .btn-secondary {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .filter-btn {
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 999px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .filter-btn.active {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+      }
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+      .left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+      }
+      .left input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #16a34a;
+      }
+      .task-name {
+        word-break: break-word;
+      }
+      .task-name.done {
+        text-decoration: line-through;
+        color: #6b7280;
+      }
+      .delete-btn {
+        border: none;
+        background: transparent;
+        color: #dc2626;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .stats {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid #e5e7eb;
+        color: #374151;
+      }
+      .empty {
+        padding: 20px 16px;
+        text-align: center;
+        color: #6b7280;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <div class="todo-box">
+        <h2>Quản lý công việc trong ngày</h2>
+
+        <div class="input-row">
+          <input
+            v-model.trim="newTask"
+            type="text"
+            placeholder="Nhập tên công việc..."
+            @keyup.enter="addTask"
+          />
+          <button class="btn btn-primary" @click="addTask">Thêm</button>
+        </div>
+
+        <div class="filters">
+          <button
+            v-for="filter in filters"
+            :key="filter.value"
+            :class="['filter-btn', { active: activeFilter === filter.value }]"
+            @click="activeFilter = filter.value"
+          >
+            {{ filter.label }}
+          </button>
+        </div>
+
+        <ul v-if="filteredTasks.length" class="list">
+          <li v-for="task in filteredTasks" :key="task.id" class="item">
+            <div class="left">
+              <input type="checkbox" v-model="task.done" />
+              <span :class="['task-name', { done: task.done }]">{{ task.name }}</span>
+            </div>
+            <button class="delete-btn" @click="deleteTask(task.id)">Xóa</button>
+          </li>
+        </ul>
+
+        <div v-else class="empty">
+          {{ activeFilter === 'all' ? 'Chưa có công việc nào.' : activeFilter === 'todo' ? 'Không có công việc chưa hoàn thành.' : 'Không có công việc đã hoàn thành.' }}
+        </div>
+
+        <div class="stats">
+          <span>Tổng số công việc: <strong>{{ totalTasks }}</strong></span>
+          <span>Công việc chưa hoàn thành: <strong>{{ unfinishedTasks }}</strong></span>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+          <button class="btn btn-secondary" @click="clearCompleted">
+            Xóa các việc đã hoàn thành
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            newTask: '',
+            activeFilter: 'all',
+            filters: [
+              { label: 'Tất cả', value: 'all' },
+              { label: 'Chưa hoàn thành', value: 'todo' },
+              { label: 'Đã hoàn thành', value: 'done' },
+            ],
+            tasks: [
+              { id: 1, name: 'Học Giải tích', done: false },
+              { id: 2, name: 'Đi chợ', done: false },
+              { id: 3, name: 'Tập thể dục', done: true },
+              { id: 4, name: 'Đọc sách', done: false },
+              { id: 5, name: 'Nấu ăn', done: false },
+              { id: 6, name: 'Dọn dẹp nhà cửa', done: true },
+              { id: 7, name: 'Gọi điện cho bạn bè', done: false },
+              { id: 8, name: 'Xem phim', done: true },
+              { id: 9, name: 'Ngủ đủ giấc', done: false },
+              { id: 10, name: 'Lập kế hoạch tuần mới', done: false },
+              { id: 11, name: 'Học ngoại ngữ', done: false },
+              { id: 12, name: 'Viết nhật ký', done: true },
+              { id: 13, name: 'Chơi thể thao', done: true },
+              { id: 14, name: 'Thăm gia đình', done: false },
+              { id: 15, name: 'Làm việc tình nguyện', done: true },
+              { id: 16, name: 'Tham quan bảo tàng', done: false }
+            ],
+          };
+        },
+        computed: {
+          filteredTasks() {
+            if (this.activeFilter === 'todo') {
+              return this.tasks.filter(task => !task.done);
+            }
+            if (this.activeFilter === 'done') {
+              return this.tasks.filter(task => task.done);
+            }
+            return this.tasks;
+          },
+          totalTasks() {
+            return this.tasks.length;
+          },
+          unfinishedTasks() {
+            return this.tasks.filter(task => !task.done).length;
+          },
+        },
+        methods: {
+          addTask() {
+            const value = this.newTask.trim();
+            if (!value) {
+              alert('Tên công việc không được để trống!');
+              return;
+            }
+
+            this.tasks.push({
+              id: Date.now(),
+              name: value,
+              done: false,
+            });
+
+            this.newTask = '';
+          },
+          deleteTask(id) {
+            this.tasks = this.tasks.filter(task => task.id !== id);
+          },
+          clearCompleted() {
+            this.tasks = this.tasks.filter(task => !task.done);
+          },
+        },
+      });
+
+      app.mount('#app');
+    </script>
+  </body>
+</html>

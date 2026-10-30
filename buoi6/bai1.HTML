@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài 1 - Thẻ thông tin sinh viên</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #eef4ff, #f7fbff);
+        color: #1f2937;
+      }
+
+      .container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 16px;
+      }
+
+      .page-box {
+        width: min(1100px, 100%);
+      }
+
+      .page-title {
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .page-title h2 {
+        font-size: 2rem;
+        margin: 0;
+      }
+
+      .student-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 22px;
+      }
+
+      .student-card {
+        width: 100%;
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.12);
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        margin: 0;
+      }
+
+      .status {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .status.active {
+        background: #dcfce7;
+        color: #15803d;
+      }
+
+      .status.inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .content {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .avatar {
+        width: 170px;
+        height: 170px;
+        border-radius: 18px;
+        object-fit: cover;
+        border: 4px solid #e0ebff;
+      }
+
+      .info {
+        flex: 1;
+        min-width: 220px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .label {
+        font-weight: 700;
+        color: #475569;
+      }
+
+      .value {
+        text-align: right;
+        color: #0f172a;
+      }
+
+      .score-input {
+        width: 90px;
+        border: 1px solid #dfe7f5;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      .score {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-weight: 700;
+      }
+
+      .rank.good {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .rank.very-good {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .rank.average {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .rank.fail {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .intro {
+        margin-top: 20px;
+        padding: 16px 18px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #334155;
+      }
+
+      .actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-toggle {
+        background: #2563eb;
+        color: white;
+      }
+
+      .btn-status {
+        background: #0f172a;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="app">
+      <div class="page-box">
+        <div class="page-title">
+          <h2>Danh sách sinh viên</h2>
+        </div>
+
+        <div class="student-list">
+          <div v-for="(student, index) in students" :key="student.maSV" class="student-card">
+            <div class="header">
+              <h3>{{ student.hoTen }}</h3>
+              <div v-if="student.status" class="status active">Đang học</div>
+              <div v-else class="status inactive">Đã nghỉ</div>
+            </div>
+
+            <div class="content">
+              <img :src="student.avatar" :alt="student.hoTen" class="avatar" />
+
+              <div class="info">
+                <div class="row">
+                  <span class="label">Mã sinh viên</span>
+                  <span class="value">{{ student.maSV }}</span>
+                </div>
+                <div class="row">
+                  <span class="label">Lớp</span>
+                  <span class="value" v-text="student.lop"></span>
+                </div>
+                <div class="row">
+                  <span class="label">Điểm TB</span>
+                  <span class="value">
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      v-model.number="student.diemTB"
+                      class="score-input"
+                    />
+                  </span>
+                </div>
+
+                <div :class="['score', 'rank', getRankClass(student.diemTB)]">
+                  Xếp loại: {{ getXepLoai(student.diemTB) }}
+                </div>
+              </div>
+            </div>
+
+            <div v-show="student.showIntro" class="intro">
+              <strong>Giới thiệu:</strong> {{ student.gioiThieu }}
+            </div>
+
+            <div class="actions">
+              <button class="btn-toggle" @click="student.showIntro = !student.showIntro">
+                {{ student.showIntro ? 'Ẩn giới thiệu' : 'Hiện giới thiệu' }}
+              </button>
+              <button class="btn-status" @click="student.status = !student.status">
+                Chuyển trạng thái
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            students: [
+              {
+                maSV: 'SV001',
+                hoTen: 'Nguyễn Văn A',
+                lop: 'CNTT K16A',
+                avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80',
+                diemTB: 8.7,
+                status: true,
+                gioiThieu: 'Sinh viên tích cực, có khả năng học tập tốt và làm việc nhóm hiệu quả.',
+                showIntro: true,
+              },
+              {
+                maSV: 'SV002',
+                hoTen: 'Trần Thị B',
+                lop: 'CNTT K16B',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80',
+                diemTB: 6.8,
+                status: true,
+                gioiThieu: 'Năng động, cẩn thận và luôn cố gắng trong các hoạt động học tập.',
+                showIntro: false,
+              },
+              {
+                maSV: 'SV003',
+                hoTen: 'Lê Văn C',
+                lop: 'CNTT K16C',
+                avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=500&q=80',
+                diemTB: 4.9,
+                status: false,
+                gioiThieu: 'Cần cải thiện nhiều hơn về kỹ năng và thời gian học tập.',
+                showIntro: true,
+              },
+            ],
+          };
+        },
+        methods: {
+          getXepLoai(diem) {
+            if (diem >= 8 && diem <= 10) return 'Giỏi';
+            if (diem >= 6.5 && diem < 8) return 'Khá';
+            if (diem >= 5 && diem < 6.5) return 'Trung bình';
+            return 'Chưa đạt';
+          },
+          getRankClass(diem) {
+            if (diem >= 8 && diem <= 10) return 'good';
+            if (diem >= 6.5 && diem < 8) return 'very-good';
+            if (diem >= 5 && diem < 6.5) return 'average';
+            return 'fail';
+          },
+        },
+      });
+
+      app.mount('#app');
+    </script>
+  </body>
+</html>
