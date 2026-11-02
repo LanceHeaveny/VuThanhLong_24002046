@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#075878">
+    <title>Weather Forecast | Dashboard thời tiết</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div class="weather-app">
+        <aside class="sidebar" id="sidebar">
+            <a class="brand" href="http://localhost/Weather_features_forecast/app/home.php" aria-label="Weather Forecast - Trang chủ">
+                <span class="brand-mark" aria-hidden="true">☼</span>
+                <span class="brand-name">Weather<span>Board</span></span>
+            </a>
+            <nav class="side-nav" aria-label="Điều hướng chính">
+                <a class="nav-link" href="http://localhost/Weather_features_forecast/app/home.php"><span class="nav-icon" aria-hidden="true">⌂</span><span>Trang chủ</span></a>
+                <a class="nav-link active" href="#overview" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span><span>Bảng điều khiển</span></a>
+                <a class="nav-link" href="#history"><span class="nav-icon" aria-hidden="true">◷</span><span>Lịch sử dữ liệu</span></a>
+            </nav>
+            <p class="side-section-title">VỊ TRÍ DỰ BÁO</p>
+            <div class="location-list" aria-label="Các vị trí">
+                <button class="location-link selected" type="button" data-location="hanoi" aria-pressed="true"><span class="location-dot"></span><span>Hà Nội</span><span class="location-temp">25°</span></button>
+                <button class="location-link" type="button" data-location="danang" aria-pressed="false"><span class="location-dot"></span><span>Đà Nẵng</span><span class="location-temp">29°</span></button>
+                <button class="location-link" type="button" data-location="hcm" aria-pressed="false"><span class="location-dot"></span><span>TP. Hồ Chí Minh</span><span class="location-temp">31°</span></button>
+            </div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-note">
+                    <span class="note-icon" aria-hidden="true">✦</span>
+                    <strong>Dữ liệu minh họa</strong>
+                    <span>Dashboard đang sử dụng dữ liệu mẫu.</span>
+                </div>
+                <a class="login-link" href="http://localhost/Weather_features_forecast/app/login.php">Đăng nhập <span>→</span></a>
+            </div>
+        </aside>
+
+        <main class="main-content" id="overview">
+            <header class="topbar">
+                <button class="menu-button" id="menu-button" type="button" aria-label="Mở menu" aria-expanded="false">☰</button>
+                <div class="breadcrumb"><span>Bảng điều khiển</span><span class="crumb-separator">›</span><strong>Thời tiết hiện tại</strong></div>
+                <div class="topbar-actions">
+                    <span class="connection-status"><i></i>Dữ liệu mẫu</span>
+                    <a class="topbar-icon" href="http://localhost/Weather_features_forecast/app/login.php" aria-label="Đăng nhập">♙</a>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <section class="page-heading">
+                    <div>
+                        <p class="eyebrow">THEO DÕI THỜI TIẾT</p>
+                        <h1>Tổng quan cảm biến</h1>
+                        <p class="heading-subtitle">Nhiệt độ và độ ẩm theo vị trí dự báo.</p>
+                    </div>
+                    <label class="location-select-wrap" for="location-select">
+                        <span class="select-pin" aria-hidden="true">⌖</span>
+                        <select id="location-select" aria-label="Chọn vị trí dự báo">
+                            <option value="hanoi">Hà Nội, Việt Nam</option>
+                            <option value="danang">Đà Nẵng, Việt Nam</option>
+                            <option value="hcm">TP. Hồ Chí Minh, Việt Nam</option>
+                        </select>
+                        <span class="select-chevron" aria-hidden="true">⌄</span>
+                    </label>
+                </section>
+
+                <section class="weather-summary" aria-label="Kiểu thời tiết hiện tại">
+                    <span class="weather-summary-icon" id="weather-summary-icon" aria-hidden="true">☀</span>
+                    <div>
+                        <p class="reading-label">KIỂU THỜI TIẾT HIỆN TẠI</p>
+                        <strong id="weather-summary-value">Nắng</strong>
+                        <p id="weather-summary-note">Ước tính từ nhiệt độ và độ ẩm minh họa.</p>
+                    </div>
+                    <span class="weather-summary-location" id="weather-summary-location">Hà Nội, Việt Nam</span>
+                </section>
+
+                <section class="dashboard-grid" aria-label="Dữ liệu thời tiết">
+                    <div class="metrics-column">
+                        <article class="metric-card temperature-card">
+                            <div class="metric-heading">
+                                <span class="metric-icon temperature-icon" aria-hidden="true">♨</span>
+                                <span><strong>Nhiệt độ</strong><small>Cập nhật vừa xong</small></span>
+                            </div>
+                            <div class="metric-value temperature-value">25 <span>°C</span></div>
+                            <div class="metric-caption"><span class="status-dot"></span>Nhiệt độ hiện tại</div>
+                        </article>
+                        <article class="metric-card humidity-card">
+                            <div class="metric-heading">
+                                <span class="metric-icon humidity-icon" aria-hidden="true">◉</span>
+                                <span><strong>Độ ẩm</strong><small>Cập nhật vừa xong</small></span>
+                            </div>
+                            <div class="metric-value humidity-value">42 <span>%</span></div>
+                            <div class="metric-caption"><span class="status-dot"></span>Độ ẩm hiện tại</div>
+                        </article>
+                    </div>
+
+                    <article class="panel chart-panel" id="history">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Lịch sử nhiệt độ và độ ẩm</h2>
+                                <p class="chart-location">Hà Nội, Việt Nam · 24 giờ qua</p>
+                            </div>
+                            <span class="period-button">24 giờ</span>
+                        </div>
+                        <div class="chart-legend" aria-label="Chú giải biểu đồ">
+                            <span><i class="legend-temperature"></i>Nhiệt độ</span>
+                            <span><i class="legend-humidity"></i>Độ ẩm</span>
+                        </div>
+                        <div class="chart-scroll">
+                            <svg class="weather-chart" viewBox="0 0 820 360" role="img" aria-label="Biểu đồ lịch sử nhiệt độ và độ ẩm">
+                                <g class="chart-grid">
+                                    <line x1="62" y1="30" x2="770" y2="30"></line><line x1="62" y1="78" x2="770" y2="78"></line>
+                                    <line x1="62" y1="126" x2="770" y2="126"></line><line x1="62" y1="174" x2="770" y2="174"></line>
+                                    <line x1="62" y1="222" x2="770" y2="222"></line><line x1="62" y1="270" x2="770" y2="270"></line>
+                                    <line x1="62" y1="30" x2="62" y2="270"></line><line x1="180" y1="30" x2="180" y2="270"></line>
+                                    <line x1="298" y1="30" x2="298" y2="270"></line><line x1="416" y1="30" x2="416" y2="270"></line>
+                                    <line x1="534" y1="30" x2="534" y2="270"></line><line x1="652" y1="30" x2="652" y2="270"></line>
+                                    <line x1="770" y1="30" x2="770" y2="270"></line>
+                                </g>
+                                <g class="chart-y-labels">
+                                    <text x="12" y="34">35°C</text><text x="12" y="82">31°C</text><text x="12" y="130">27°C</text>
+                                    <text x="12" y="178">23°C</text><text x="12" y="226">19°C</text><text x="12" y="274">15°C</text>
+                                </g>
+                                <g class="chart-right-labels">
+                                    <text x="780" y="34">60%</text><text x="780" y="82">54%</text><text x="780" y="130">48%</text>
+                                    <text x="780" y="178">42%</text><text x="780" y="226">36%</text><text x="780" y="274">30%</text>
+                                </g>
+                                <text class="axis-title" x="14" y="16">Nhiệt độ</text>
+                                <text class="axis-title axis-right-title" x="769" y="16">Độ ẩm</text>
+                                <path class="temperature-line" id="temperature-line"></path>
+                                <path class="humidity-line" id="humidity-line"></path>
+                                <g class="chart-x-labels">
+                                    <text x="62" y="300">00:00</text><text x="180" y="300">04:00</text><text x="298" y="300">08:00</text>
+                                    <text x="416" y="300">12:00</text><text x="534" y="300">16:00</text><text x="652" y="300">20:00</text>
+                                    <text x="770" y="300">23:00</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="chart-footer">
+                            <span><i class="legend-temperature"></i>Nhiệt độ: <strong class="latest-temperature">25°C</strong></span>
+                            <span><i class="legend-humidity"></i>Độ ẩm: <strong class="latest-humidity">42%</strong></span>
+                        </div>
+                    </article>
+                </section>
+
+                <footer class="dashboard-footer">
+                    <span>Weather Forecast</span>
+                    <span>Vị trí là khóa tra cứu dữ liệu dự báo. Các chỉ số hiện là dữ liệu minh họa.</span>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script>
+        const locations = {
+            hanoi: {
+                name: 'Hà Nội, Việt Nam',
+                temperature: 25,
+                humidity: 42,
+                temperatures: [25, 26, 27, 26, 25, 24, 21, 22, 24, 26, 27, 27, 29, 25, 24, 25],
+                humidities: [42, 40, 39, 42, 45, 47, 53, 47, 43, 48, 52, 52, 52, 47, 44, 41]
+            },
+            danang: {
+                name: 'Đà Nẵng, Việt Nam',
+                temperature: 29,
+                humidity: 82,
+                temperatures: [25, 25, 26, 27, 28, 29, 30, 30, 29, 28, 29, 30, 31, 30, 29, 29],
+                humidities: [70, 72, 73, 71, 69, 68, 66, 65, 67, 69, 70, 72, 76, 79, 81, 82]
+            },
+            hcm: {
+                name: 'TP. Hồ Chí Minh, Việt Nam',
+                temperature: 31,
+                humidity: 86,
+                temperatures: [29, 29, 28, 29, 30, 31, 32, 32, 31, 30, 31, 32, 33, 32, 31, 31],
+                humidities: [78, 79, 80, 78, 77, 76, 74, 73, 75, 77, 78, 79, 81, 83, 85, 86]
+            }
+        };
+        const chart = { left: 62, right: 770, top: 30, bottom: 270 };
+        const locationSelect = document.getElementById('location-select');
+        const locationButtons = document.querySelectorAll('.location-link');
+        const temperatureLabels = document.querySelectorAll('.chart-y-labels text');
+        const humidityLabels = document.querySelectorAll('.chart-right-labels text');
+
+        function getRange(values) {
+            return {
+                minimum: Math.floor(Math.min(...values) / 5) * 5 - 5,
+                maximum: Math.ceil(Math.max(...values) / 5) * 5 + 5
+            };
+        }
+
+        function createSmoothPath(values, range) {
+            const step = (chart.right - chart.left) / (values.length - 1);
+            const points = values.map((value, index) => ({
+                x: chart.left + index * step,
+                y: chart.bottom - ((value - range.minimum) / (range.maximum - range.minimum)) * (chart.bottom - chart.top)
+            }));
+            let path = `M ${points[0].x} ${points[0].y}`;
+            for (let index = 0; index < points.length - 1; index += 1) {
+                const current = points[index];
+                const next = points[index + 1];
+                const midpoint = (current.x + next.x) / 2;
+                path += ` C ${midpoint} ${current.y}, ${midpoint} ${next.y}, ${next.x} ${next.y}`;
+            }
+            return path;
+        }
+
+        function inferWeather(humidity, temperature) {
+            if (temperature <= 0 && humidity >= 80) return { label: 'Tuyết rơi', icon: '❄' };
+            if (temperature >= 25 && humidity >= 85) return { label: 'Sấm sét', icon: '⛈' };
+            if (temperature <= 20 && humidity >= 90) return { label: 'Sương mù', icon: '🌫' };
+            if (temperature > 0 && humidity >= 80) return { label: 'Mưa', icon: '☂' };
+            if (temperature >= 20 && humidity < 60) return { label: 'Nắng', icon: '☀' };
+            return { label: 'Chưa xác định', icon: '◷' };
+        }
+
+        function updateLocation(key) {
+            const location = locations[key];
+            if (!location) return;
+
+            locationSelect.value = key;
+            document.querySelector('.temperature-value').innerHTML = `${location.temperature} <span>°C</span>`;
+            document.querySelector('.humidity-value').innerHTML = `${location.humidity} <span>%</span>`;
+            const locationTemperature = document.querySelector(`[data-location="${key}"] .location-temp`);
+            if (locationTemperature) locationTemperature.textContent = `${location.temperature}°`;
+            document.querySelector('.chart-location').textContent = `${location.name} · 24 giờ qua`;
+            document.querySelector('.latest-temperature').textContent = `${location.temperature}°C`;
+            document.querySelector('.latest-humidity').textContent = `${location.humidity}%`;
+            const weather = inferWeather(location.humidity, location.temperature);
+            document.getElementById('weather-summary-value').textContent = weather.label;
+            document.getElementById('weather-summary-icon').textContent = weather.icon;
+            document.getElementById('weather-summary-location').textContent = location.name;
+            document.getElementById('weather-summary-note').textContent =
+                weather.label === 'Chưa xác định'
+                    ? 'Chưa đủ điều kiện để ước tính từ nhiệt độ và độ ẩm.'
+                    : 'Ước tính từ nhiệt độ và độ ẩm minh họa.';
+
+            const temperatureRange = getRange(location.temperatures);
+            const humidityRange = getRange(location.humidities);
+            document.getElementById('temperature-line').setAttribute('d', createSmoothPath(location.temperatures, temperatureRange));
+            document.getElementById('humidity-line').setAttribute('d', createSmoothPath(location.humidities, humidityRange));
+
+            temperatureLabels.forEach((label, index) => {
+                const value = temperatureRange.maximum - ((temperatureRange.maximum - temperatureRange.minimum) * index / (temperatureLabels.length - 1));
+                label.textContent = `${Math.round(value)}°C`;
+            });
+            humidityLabels.forEach((label, index) => {
+                const value = humidityRange.maximum - ((humidityRange.maximum - humidityRange.minimum) * index / (humidityLabels.length - 1));
+                label.textContent = `${Math.round(value)}%`;
+            });
+            locationButtons.forEach((button) => {
+                const selected = button.dataset.location === key;
+                button.classList.toggle('selected', selected);
+                button.setAttribute('aria-pressed', String(selected));
+            });
+        }
+
+        locationSelect.addEventListener('change', () => updateLocation(locationSelect.value));
+        locationButtons.forEach((button) => button.addEventListener('click', () => updateLocation(button.dataset.location)));
+        const menuButton = document.getElementById('menu-button');
+        menuButton.addEventListener('click', () => {
+            const isOpen = document.getElementById('sidebar').classList.toggle('sidebar-open');
+            menuButton.setAttribute('aria-expanded', String(isOpen));
+        });
+        updateLocation('hanoi');
+    </script>
+</body>
+</html>
