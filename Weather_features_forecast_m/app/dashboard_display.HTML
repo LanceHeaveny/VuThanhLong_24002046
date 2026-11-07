@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#075878">
+    <title>Weather Forecast | Dashboard thời tiết</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <div class="weather-app">
+        <aside class="sidebar" id="sidebar">
+            <a class="brand" href="home.php" aria-label="Weather Forecast - Trang chủ">
+                <span class="brand-mark" aria-hidden="true">☼</span>
+                <span class="brand-name">Weather<span>Board</span></span>
+            </a>
+            <nav class="side-nav" aria-label="Điều hướng chính">
+                <a class="nav-link" href="home.php"><span class="nav-icon" aria-hidden="true">⌂</span><span>Trang chủ</span></a>
+                <a class="nav-link active" href="#overview" aria-current="page"><span class="nav-icon" aria-hidden="true">▦</span><span>Bảng điều khiển</span></a>
+                <a class="nav-link" href="forecast.php"><span class="nav-icon" aria-hidden="true">☀</span><span>Dự báo thời tiết</span></a>
+                <a class="nav-link" href="old_data.php"><span class="nav-icon" aria-hidden="true">◷</span><span>Lịch sử dữ liệu</span></a>
+            </nav>
+            <p class="side-section-title">ĐIỂM DỰ BÁO</p>
+            <div class="location-list" id="location-list" aria-label="34 điểm thời tiết"></div>
+            <div class="sidebar-bottom">
+                <div class="sidebar-note">
+                    <span class="note-icon" aria-hidden="true">✦</span>
+                    <strong>Dữ liệu Open-Meteo</strong>
+                    <span>Xã/phường dùng điểm dự báo gần nhất trong danh sách.</span>
+                </div>
+                <a class="login-link" href="login.php">Đăng nhập <span>→</span></a>
+            </div>
+        </aside>
+
+        <main class="main-content" id="overview">
+            <header class="topbar">
+                <button class="menu-button" id="menu-button" type="button" aria-label="Mở menu" aria-expanded="false">☰</button>
+                <div class="breadcrumb"><span>Bảng điều khiển</span><span class="crumb-separator">›</span><strong>Thời tiết hiện tại</strong></div>
+                <div class="topbar-actions">
+                    <span class="connection-status"><i></i><span id="connection-label">Đang kết nối...</span></span>
+                    <time class="vietnam-clock" id="vietnam-clock" aria-label="Giờ Việt Nam"></time>
+                    <a class="topbar-icon" href="login.php" aria-label="Đăng nhập">♙</a>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <section class="page-heading">
+                    <div>
+                        <p class="eyebrow">THEO DÕI THỜI TIẾT</p>
+                        <h1>Tổng quan thời tiết</h1>
+                        <p class="heading-subtitle">Thời tiết tại 34 tỉnh, thành phố và 3.321 xã/phường.</p>
+                    </div>
+                    <div class="location-controls">
+                        <label class="location-select-wrap" for="location-select">
+                            <span class="select-pin" aria-hidden="true">⌖</span>
+                            <select id="location-select" aria-label="Chọn điểm thời tiết"></select>
+                            <span class="select-chevron" aria-hidden="true">⌄</span>
+                        </label>
+                        <label class="ward-search-wrap" for="ward-search">
+                            <input id="ward-search" type="search" list="ward-options" autocomplete="off" placeholder="Tìm xã/phường..." aria-label="Tìm xã hoặc phường">
+                            <datalist id="ward-options"></datalist>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="weather-summary" aria-label="Kiểu thời tiết hiện tại">
+                    <span class="weather-summary-icon" id="weather-summary-icon" aria-hidden="true">☀</span>
+                    <div>
+                        <p class="reading-label">KIỂU THỜI TIẾT HIỆN TẠI</p>
+                        <strong id="weather-summary-value">Nắng</strong>
+                        <p class="weather-condition-note" id="weather-summary-note">Đang tải dữ liệu thời tiết...</p>
+                        <p class="daylight-status" id="daylight-status">Đang xác định ngày/đêm...</p>
+                    </div>
+                    <span class="weather-summary-location" id="weather-summary-location">Hà Nội, Việt Nam</span>
+                </section>
+
+                <section class="dashboard-grid" aria-label="Dữ liệu thời tiết">
+                    <div class="metrics-column">
+                        <article class="metric-card temperature-card">
+                            <div class="metric-heading">
+                                <span class="metric-icon temperature-icon" aria-hidden="true">♨</span>
+                                <span><strong>Nhiệt độ</strong><small class="reading-time">Đang tải...</small></span>
+                            </div>
+                            <div class="metric-value temperature-value">25 <span>°C</span></div>
+                            <div class="metric-caption"><span class="status-dot"></span>Nhiệt độ hiện tại</div>
+                        </article>
+                        <article class="metric-card humidity-card">
+                            <div class="metric-heading">
+                                <span class="metric-icon humidity-icon" aria-hidden="true">◉</span>
+                                <span><strong>Độ ẩm</strong><small class="reading-time">Đang tải...</small></span>
+                            </div>
+                            <div class="metric-value humidity-value">42 <span>%</span></div>
+                            <div class="metric-caption"><span class="status-dot"></span>Độ ẩm hiện tại</div>
+                        </article>
+                    </div>
+
+                    <article class="panel chart-panel" id="history">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Lịch sử 12 giờ · nhiệt độ và độ ẩm</h2>
+                                <p class="chart-location">Hà Nội, Việt Nam · 720 số đo phút</p>
+                            </div>
+                            <span class="period-button">12 giờ</span>
+                        </div>
+                        <div class="chart-legend" aria-label="Chú giải biểu đồ">
+                            <span><i class="legend-temperature"></i>Nhiệt độ</span>
+                            <span><i class="legend-humidity"></i>Độ ẩm</span>
+                        </div>
+                        <div class="chart-scroll">
+                            <svg class="weather-chart" viewBox="0 0 820 360" role="img" aria-label="Biểu đồ lịch sử nhiệt độ và độ ẩm">
+                                <g class="chart-grid">
+                                    <line x1="62" y1="30" x2="770" y2="30"></line><line x1="62" y1="78" x2="770" y2="78"></line>
+                                    <line x1="62" y1="126" x2="770" y2="126"></line><line x1="62" y1="174" x2="770" y2="174"></line>
+                                    <line x1="62" y1="222" x2="770" y2="222"></line><line x1="62" y1="270" x2="770" y2="270"></line>
+                                    <line x1="62" y1="30" x2="62" y2="270"></line><line x1="180" y1="30" x2="180" y2="270"></line>
+                                    <line x1="298" y1="30" x2="298" y2="270"></line><line x1="416" y1="30" x2="416" y2="270"></line>
+                                    <line x1="534" y1="30" x2="534" y2="270"></line><line x1="652" y1="30" x2="652" y2="270"></line>
+                                    <line x1="770" y1="30" x2="770" y2="270"></line>
+                                </g>
+                                <g class="chart-y-labels">
+                                    <text x="12" y="34">35°C</text><text x="12" y="82">31°C</text><text x="12" y="130">27°C</text>
+                                    <text x="12" y="178">23°C</text><text x="12" y="226">19°C</text><text x="12" y="274">15°C</text>
+                                </g>
+                                <g class="chart-right-labels">
+                                    <text x="780" y="34">60%</text><text x="780" y="82">54%</text><text x="780" y="130">48%</text>
+                                    <text x="780" y="178">42%</text><text x="780" y="226">36%</text><text x="780" y="274">30%</text>
+                                </g>
+                                <text class="axis-title" x="14" y="16">Nhiệt độ</text>
+                                <text class="axis-title axis-right-title" x="769" y="16">Độ ẩm</text>
+                                <path class="temperature-line" id="temperature-line"></path>
+                                <path class="humidity-line" id="humidity-line"></path>
+                                <g class="chart-x-labels">
+                                    <text x="62" y="300">00:00</text><text x="180" y="300">04:00</text><text x="298" y="300">08:00</text>
+                                    <text x="416" y="300">12:00</text><text x="534" y="300">16:00</text><text x="652" y="300">20:00</text>
+                                    <text x="770" y="300">23:00</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div class="chart-footer">
+                            <span><i class="legend-temperature"></i>Nhiệt độ: <strong class="latest-temperature">25°C</strong></span>
+                            <span><i class="legend-humidity"></i>Độ ẩm: <strong class="latest-humidity">42%</strong></span>
+                        </div>
+                    </article>
+                </section>
+
+                <footer class="dashboard-footer">
+                    <span>Weather Forecast</span>
+                    <span>Xã/phường dùng dữ liệu từ điểm Open-Meteo gần nhất trong 34 điểm hiện có; đây không phải radar tại chỗ.</span>
+                </footer>
+            </div>
+        </main>
+    </div>
+    <script>
+        const locations = {};
+        const chart = { left: 62, right: 770, top: 30, bottom: 270 };
+        const locationSelect = document.getElementById('location-select');
+        const wardSearch = document.getElementById('ward-search');
+        const wardOptions = document.getElementById('ward-options');
+        const locationList = document.getElementById('location-list');
+        const wardLocations = new Map();
+        const temperatureLabels = document.querySelectorAll('.chart-y-labels text');
+        const humidityLabels = document.querySelectorAll('.chart-right-labels text');
+        const timeLabels = document.querySelectorAll('.chart-x-labels text');
+        const connectionLabel = document.getElementById('connection-label');
+        let activeLocation = 'ha-noi';
+        let preferredLocation = 'ha-noi';
+        let activeCoordinates = null;
+        let activeWeatherType = '';
+        let requestSequence = 0;
+
+        function getRange(values) {
+            return {
+                minimum: Math.floor(Math.min(...values) / 5) * 5 - 5,
+                maximum: Math.ceil(Math.max(...values) / 5) * 5 + 5
+            };
+        }
+
+        function createSmoothPath(values, range) {
+            if (values.length === 0) return '';
+            if (values.length === 1) {
+                const y = chart.bottom - ((values[0] - range.minimum) / (range.maximum - range.minimum)) * (chart.bottom - chart.top);
+                return `M ${chart.left} ${y} L ${chart.right} ${y}`;
+            }
+
+            const step = (chart.right - chart.left) / (values.length - 1);
+            const points = values.map((value, index) => ({
+                x: chart.left + index * step,
+                y: chart.bottom - ((value - range.minimum) / (range.maximum - range.minimum)) * (chart.bottom - chart.top)
+            }));
+            let path = `M ${points[0].x} ${points[0].y}`;
+            for (let index = 0; index < points.length - 1; index += 1) {
+                const current = points[index];
+                const next = points[index + 1];
+                const midpoint = (current.x + next.x) / 2;
+                path += ` C ${midpoint} ${current.y}, ${midpoint} ${next.y}, ${next.x} ${next.y}`;
+            }
+            return path;
+        }
+
+        function inferWeather(humidity, temperature, isDay) {
+            if (temperature <= 0 && humidity >= 80) return { label: 'Tuyết rơi', icon: '❄' };
+            if (temperature >= 25 && humidity >= 85) return { label: 'Sấm sét', icon: '⛈' };
+            if (temperature <= 20 && humidity >= 90) return { label: 'Sương mù', icon: '🌫' };
+            if (temperature > 0 && humidity >= 80) return { label: 'Mưa', icon: '🌧️' };
+            if (temperature >= 20 && humidity < 60 && isDay) return { label: 'Nắng', icon: '☀️' };
+            if (temperature >= 20 && humidity < 60) return { label: 'Trời quang', icon: '🌙' };
+            if (!isDay) return { label: 'Nhiều mây', icon: '☁' };
+            return { label: 'Chưa xác định', icon: '◷' };
+        }
+
+        function weatherIcon(weatherType, isDay) {
+            if (!isDay) return '🌙';
+            const icons = {
+                'trời quang': '☀️',
+                'ít mây': '🌤️',
+                'mây rải rác': '⛅',
+                'nhiều mây': '☁️',
+                'sương mù': '🌫️',
+                'mưa phùn': '🌦️',
+                'mưa': '🌧️',
+                'mưa lớn': '🌧️',
+                'mưa rào': '🌦️',
+                'mưa rào lớn': '🌧️',
+                'tuyết': '❄️',
+                'dông': '⛈️'
+            };
+            return icons[weatherType] || '🌤️';
+        }
+
+        function isSunAboveHorizon(date, latitude, longitude) {
+            const yearStart = Date.UTC(date.getUTCFullYear(), 0, 0);
+            const dayOfYear = Math.floor((Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - yearStart) / 86400000);
+            const utcHour = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+            const angle = 2 * Math.PI / 365 * (dayOfYear - 1 + (utcHour - 12) / 24);
+            const equationOfTime = 229.18 * (
+                0.000075
+                + 0.001868 * Math.cos(angle)
+                - 0.032077 * Math.sin(angle)
+                - 0.014615 * Math.cos(2 * angle)
+                - 0.040849 * Math.sin(2 * angle)
+            );
+            const declination = 0.006918
+                - 0.399912 * Math.cos(angle)
+                + 0.070257 * Math.sin(angle)
+                - 0.006758 * Math.cos(2 * angle)
+                + 0.000907 * Math.sin(2 * angle)
+                - 0.002697 * Math.cos(3 * angle)
+                + 0.00148 * Math.sin(3 * angle);
+            const solarMinutes = ((utcHour * 60 + equationOfTime + 4 * longitude) % 1440 + 1440) % 1440;
+            const hourAngle = (solarMinutes / 4 - 180) * Math.PI / 180;
+            const latitudeRadians = latitude * Math.PI / 180;
+            const solarAltitude = Math.asin(
+                Math.sin(latitudeRadians) * Math.sin(declination)
+                + Math.cos(latitudeRadians) * Math.cos(declination) * Math.cos(hourAngle)
+            ) * 180 / Math.PI;
+
+            return solarAltitude > -0.833;
+        }
+
+        function parseVietnamTime(value) {
+            return new Date(`${value.replace(' ', 'T')}+07:00`);
+        }
+
+        function updateVietnamClock() {
+            const now = new Date();
+            const clock = document.getElementById('vietnam-clock');
+            const time = new Intl.DateTimeFormat('vi-VN', {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).format(now);
+            clock.textContent = `Giờ VN ${time}`;
+            clock.dateTime = now.toISOString();
+            clock.title = new Intl.DateTimeFormat('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                dateStyle: 'full',
+                timeStyle: 'long'
+            }).format(now);
+
+            if (activeCoordinates) {
+                const isDay = isSunAboveHorizon(now, activeCoordinates.latitude, activeCoordinates.longitude);
+                document.getElementById('daylight-status').textContent = isDay
+                    ? 'Ban ngày · giờ Việt Nam'
+                    : 'Ban đêm · giờ Việt Nam';
+                document.getElementById('weather-summary-icon').textContent = weatherIcon(activeWeatherType, isDay);
+                document.querySelector('.weather-summary').classList.toggle('is-night', !isDay);
+            }
+        }
+
+        function renderLocation(key, data) {
+            const readings = data.readings;
+            const temperatures = readings.map((reading) => reading.temperature);
+            const humidities = readings.map((reading) => reading.humidity);
+            const temperature = data.temperature;
+            const humidity = data.humidity;
+            const name = data.location.name;
+            activeCoordinates = data.location;
+            const recordedAt = parseVietnamTime(data.recorded_at);
+            const formattedTime = recordedAt.toLocaleTimeString('vi-VN', {
+                timeZone: 'Asia/Ho_Chi_Minh',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            locationSelect.value = data.location.province_key || data.location.source_key || key;
+            document.querySelector('.temperature-value').innerHTML = `${temperature} <span>°C</span>`;
+            document.querySelector('.humidity-value').innerHTML = `${humidity} <span>%</span>`;
+            const locationTemperature = document.querySelector(`[data-location="${key}"] .location-temp`);
+            if (locationTemperature) locationTemperature.textContent = `${temperature}°`;
+            document.querySelector('.chart-location').textContent = `${name} · ${readings.length} số đo phút`;
+            document.querySelector('.latest-temperature').textContent = `${temperature}°C`;
+            document.querySelector('.latest-humidity').textContent = `${humidity}%`;
+            document.querySelectorAll('.reading-time').forEach((element) => {
+                element.textContent = `Cập nhật ${formattedTime}`;
+            });
+            const isDay = isSunAboveHorizon(new Date(), activeCoordinates.latitude, activeCoordinates.longitude);
+            activeWeatherType = data.weather_type || '';
+            const weather = data.weather_type
+                ? {
+                    label: data.weather_type.charAt(0).toLocaleUpperCase('vi-VN') + data.weather_type.slice(1),
+                    icon: weatherIcon(data.weather_type, isDay)
+                }
+                : inferWeather(humidity, temperature, isDay);
+            document.getElementById('weather-summary-value').textContent = weather.label;
+            document.getElementById('weather-summary-icon').textContent = weather.icon;
+            document.getElementById('weather-summary-location').textContent = name;
+            document.querySelector('.weather-summary').classList.toggle('is-night', !isDay);
+            const fallbackNote = data.location.fallback
+                ? `Nguồn gần nhất: ${data.location.fallback.name} (${data.location.fallback.distance_km} km).`
+                : 'Thông tin thời tiết hiện tại.';
+            document.getElementById('weather-summary-note').textContent = data.source_status === 'stale'
+                ? `Đang hiển thị dữ liệu đã lưu. ${fallbackNote}`
+                : fallbackNote;
+            document.getElementById('daylight-status').textContent = isDay
+                ? 'Ban ngày · giờ Việt Nam'
+                : 'Ban đêm · giờ Việt Nam';
+
+            const temperatureRange = getRange(temperatures);
+            const humidityRange = getRange(humidities);
+            document.getElementById('temperature-line').setAttribute('d', createSmoothPath(temperatures, temperatureRange));
+            document.getElementById('humidity-line').setAttribute('d', createSmoothPath(humidities, humidityRange));
+
+            temperatureLabels.forEach((label, index) => {
+                const value = temperatureRange.maximum - ((temperatureRange.maximum - temperatureRange.minimum) * index / (temperatureLabels.length - 1));
+                label.textContent = `${Math.round(value)}°C`;
+            });
+            humidityLabels.forEach((label, index) => {
+                const value = humidityRange.maximum - ((humidityRange.maximum - humidityRange.minimum) * index / (humidityLabels.length - 1));
+                label.textContent = `${Math.round(value)}%`;
+            });
+            timeLabels.forEach((label, index) => {
+                const readingIndex = Math.round(index * (readings.length - 1) / (timeLabels.length - 1));
+                const time = parseVietnamTime(readings[readingIndex].recorded_at);
+                label.textContent = time.toLocaleTimeString('vi-VN', {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            });
+            locationList.querySelectorAll('.location-link').forEach((button) => {
+                const selected = button.dataset.location === (data.location.source_key || key);
+                button.classList.toggle('selected', selected);
+                button.setAttribute('aria-pressed', String(selected));
+            });
+        }
+
+        async function updateLocation(key) {
+            if (!locations[key]) return;
+            activeLocation = key;
+            const currentRequest = ++requestSequence;
+            locationSelect.value = key;
+            connectionLabel.textContent = 'Đang cập nhật...';
+            try {
+                const response = await fetch(`dashboard_feed.php?location=${encodeURIComponent(key)}`, { cache: 'no-store' });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Không thể tải dữ liệu.');
+                if (currentRequest !== requestSequence) return;
+                renderLocation(key, data);
+                connectionLabel.textContent = data.source_status === 'stale'
+                    ? 'Đang dùng dữ liệu đã lưu'
+                    : 'Đã cập nhật';
+            } catch (error) {
+                if (currentRequest === requestSequence) {
+                    connectionLabel.textContent = 'Lỗi kết nối';
+                    console.error('Không thể cập nhật dashboard:', error);
+                }
+            }
+        }
+
+        locationSelect.addEventListener('change', () => {
+            wardSearch.value = '';
+            updateLocation(locationSelect.value);
+        });
+        wardSearch.addEventListener('change', () => {
+            const key = wardLocations.get(wardSearch.value.trim().toLocaleLowerCase('vi-VN'));
+            if (key) updateLocation(key);
+        });
+        locationList.addEventListener('click', (event) => {
+            const button = event.target.closest('.location-link');
+            if (button) {
+                wardSearch.value = '';
+                updateLocation(button.dataset.location);
+            }
+        });
+        const menuButton = document.getElementById('menu-button');
+        menuButton.addEventListener('click', () => {
+            const isOpen = document.getElementById('sidebar').classList.toggle('sidebar-open');
+            menuButton.setAttribute('aria-expanded', String(isOpen));
+        });
+        async function initializeDashboard() {
+            try {
+                const response = await fetch('dashboard_feed.php?action=locations', { cache: 'no-store' });
+                const locationData = await response.json();
+                if (!response.ok) throw new Error(locationData.error || 'Không thể tải danh sách tỉnh, thành phố.');
+                const provinceList = locationData.locations;
+                if (!Array.isArray(provinceList) || provinceList.length === 0) {
+                    throw new Error('Danh sách tỉnh, thành phố không hợp lệ.');
+                }
+
+                provinceList.forEach((province) => {
+                    locations[province.key] = { type: 'province', name: province.name };
+
+                    const option = document.createElement('option');
+                    option.value = province.key;
+                    option.textContent = `${province.name}, Việt Nam`;
+                    locationSelect.append(option);
+
+                    const button = document.createElement('button');
+                    button.className = 'location-link';
+                    button.type = 'button';
+                    button.dataset.location = province.key;
+                    button.setAttribute('aria-pressed', 'false');
+
+                    const dot = document.createElement('span');
+                    dot.className = 'location-dot';
+                    const name = document.createElement('span');
+                    name.textContent = province.name;
+                    const temperature = document.createElement('span');
+                    temperature.className = 'location-temp';
+                    temperature.textContent = '--°';
+
+                    button.append(dot, name, temperature);
+                    locationList.append(button);
+                });
+
+                const wardsResponse = await fetch('dashboard_feed.php?action=wards', { cache: 'no-store' });
+                const wardData = await wardsResponse.json();
+                if (!wardsResponse.ok) throw new Error(wardData.error || 'Không thể tải danh sách xã, phường.');
+                if (!Array.isArray(wardData.wards)) {
+                    throw new Error('Danh sách xã, phường không hợp lệ.');
+                }
+                wardData.wards.forEach((ward) => {
+                    locations[ward.key] = { type: 'ward', name: ward.address };
+                    wardLocations.set(ward.address.toLocaleLowerCase('vi-VN'), ward.key);
+
+                    const option = document.createElement('option');
+                    option.value = ward.address;
+                    wardOptions.append(option);
+
+                    if (ward.key === locationData.preferred_location_key) {
+                        wardSearch.value = ward.address;
+                    }
+                });
+
+                if (locations[locationData.preferred_location_key]) {
+                    preferredLocation = locationData.preferred_location_key;
+                }
+                activeLocation = locations[preferredLocation] ? preferredLocation : provinceList[0].key;
+                await updateLocation(activeLocation);
+                window.setInterval(() => updateLocation(activeLocation), 60000);
+            } catch (error) {
+                connectionLabel.textContent = 'Lỗi kết nối';
+                console.error('Không thể khởi tạo dashboard:', error);
+            }
+        }
+
+        updateVietnamClock();
+        window.setInterval(updateVietnamClock, 1000);
+        initializeDashboard();
+    </script>
+</body>
+</html>
